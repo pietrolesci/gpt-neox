@@ -136,10 +136,12 @@ def _build_index_mappings(
     sample_idx_filename = _filename + "_sample_idx.npy"
     shuffle_idx_filename = _filename + "_shuffle_idx.npy"
 
-    if not use_shared_fs:
-        should_process_dataset = int(os.environ['LOCAL_RANK']) == 0
-    else:
-        should_process_dataset = torch.distributed.get_rank() == 0
+    # HACK: modified here
+    # if not use_shared_fs:
+    #     should_process_dataset = int(os.environ['LOCAL_RANK']) == 0
+    # else:
+    #     should_process_dataset = torch.distributed.get_rank() == 0
+    should_process_dataset = True
 
     # Build the indexed mapping if not exist.
     if should_process_dataset:
@@ -188,14 +190,15 @@ def _build_index_mappings(
                 " (seconds): {:4f}".format(time.time() - start_time)
             )
 
+    # HACK: commented it out
     # This should be a barrier but nccl barrier assumes
     # device_index=rank which is not the case for model
     # parallel case
-    counts = torch.cuda.LongTensor([1])
-    torch.distributed.all_reduce(counts, group=mpu.get_io_parallel_group())
-    assert counts[0].item() == torch.distributed.get_world_size(
-        group=mpu.get_io_parallel_group()
-    )
+    # counts = torch.cuda.LongTensor([1])
+    # torch.distributed.all_reduce(counts, group=mpu.get_io_parallel_group())
+    # assert counts[0].item() == torch.distributed.get_world_size(
+    #     group=mpu.get_io_parallel_group()
+    # )
 
     # Load mappings.
     start_time = time.time()

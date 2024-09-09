@@ -408,6 +408,10 @@ def build_train_valid_test_data_iterators(neox_args):
                 skip_warmup=(not neox_args.mmap_warmup),
             )
 
+        # HACK: stop here
+        print("================= After this we can fail on purpose =================")
+        raise ValueError("Raising an error to stop the process. Don't worry, it's on purpose")
+
         # Build dataloders.
         train_dataloader = make_data_loader(train_ds, neox_args=neox_args)
         valid_dataloader = make_data_loader(valid_ds, neox_args=neox_args)

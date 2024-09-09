@@ -31,7 +31,7 @@ import numpy as np
 
 from megatron.utils import (
     Timers,
-    init_wandb,
+    # init_wandb,  # HACK: commented it out
     get_ltor_masks_and_position_ids,
     reduce_losses,
 )
@@ -55,7 +55,7 @@ from megatron.utils import (
     CharCounter,
 )
 from megatron.model.gpt2_model import cross_entropy
-from eval_tasks import run_eval_harness
+# from eval_tasks import run_eval_harness  # HACK: commented it out
 
 
 def pretrain(neox_args):
@@ -71,94 +71,98 @@ def pretrain(neox_args):
         neox_args: an instance of NeoXArgs containing the configuration for pretrain
 
     """
-    # setup logging and timers
-    init_wandb(neox_args=neox_args)
-    timers = Timers(
-        use_wandb=neox_args.use_wandb, tensorboard_writer=neox_args.tensorboard_writer
-    )
+    # HACK: commented it out
+    # # setup logging and timers
+    # init_wandb(neox_args=neox_args)
+    # timers = Timers(
+    #     use_wandb=neox_args.use_wandb, tensorboard_writer=neox_args.tensorboard_writer
+    # )
 
-    # Initialize and get arguments, timers, and Tensorboard writer.
+    # # Initialize and get arguments, timers, and Tensorboard writer.
     initialize_megatron(neox_args=neox_args)
 
-    # Model, optimizer, and learning rate.
-    timers("model and optimizer").start()
-    model, optimizer, lr_scheduler = setup_model_and_optimizer(
-        neox_args=neox_args, use_cache=False
-    )
-    timers("model and optimizer").stop()
+    # # Model, optimizer, and learning rate.
+    # timers("model and optimizer").start()
+    #model, optimizer, lr_scheduler = setup_model_and_optimizer(
+    #    neox_args=neox_args, use_cache=False
+    #)
+    # timers("model and optimizer").stop()
 
     # Data stuff.
-    timers("train/valid/test data iterators").start()
+    # timers("train/valid/test data iterators").start()
     (
         train_data_iterator,
         valid_data_iterator,
         test_data_iterator,
     ) = build_train_valid_test_data_iterators(neox_args=neox_args)
-    timers("train/valid/test data iterators").stop()
+    
+    # HACK: commented it out
+    # timers("train/valid/test data iterators").stop()
+    print("HERE")
 
-    # Print setup timing.
-    print_rank_0("done with setups ...")
-    timers.log(["model and optimizer", "train/valid/test data iterators"])
-    print_rank_0("training ...")
+    # # Print setup timing.
+    # print_rank_0("done with setups ...")
+    # timers.log(["model and optimizer", "train/valid/test data iterators"])
+    # print_rank_0("training ...")
 
-    iteration = neox_args.iteration
-    if neox_args.do_train and neox_args.train_iters > 0:
-        # edge case: save step 0 checkpoint if requested and we're starting from step 0
-        if neox_args.save and 0 in neox_args.save_iters and iteration == 0:
-            save_checkpoint(
-                neox_args=neox_args,
-                iteration=iteration,
-                model=model,
-                optimizer=optimizer,
-                lr_scheduler=lr_scheduler,
-            )
+    # iteration = neox_args.iteration
+    # if neox_args.do_train and neox_args.train_iters > 0:
+    #     # edge case: save step 0 checkpoint if requested and we're starting from step 0
+    #     if neox_args.save and 0 in neox_args.save_iters and iteration == 0:
+    #         save_checkpoint(
+    #             neox_args=neox_args,
+    #             iteration=iteration,
+    #             model=model,
+    #             optimizer=optimizer,
+    #             lr_scheduler=lr_scheduler,
+    #         )
 
-        iteration = train(
-            neox_args=neox_args,
-            timers=timers,
-            model=model,
-            optimizer=optimizer,
-            lr_scheduler=lr_scheduler,
-            train_data_iterator=train_data_iterator,
-            valid_data_iterator=valid_data_iterator,
-        )
+    #     iteration = train(
+    #         neox_args=neox_args,
+    #         timers=timers,
+    #         model=model,
+    #         optimizer=optimizer,
+    #         lr_scheduler=lr_scheduler,
+    #         train_data_iterator=train_data_iterator,
+    #         valid_data_iterator=valid_data_iterator,
+    #     )
 
-    if neox_args.do_valid:
-        prefix = "the end of training for val data"
-        evaluate_and_print_results(
-            neox_args=neox_args,
-            prefix=prefix,
-            forward_step_func=forward_step,
-            data_iterator=valid_data_iterator,
-            model=model,
-            iteration=iteration,
-            verbose=False,
-            timers=timers,
-        )
+    # if neox_args.do_valid:
+    #     prefix = "the end of training for val data"
+    #     evaluate_and_print_results(
+    #         neox_args=neox_args,
+    #         prefix=prefix,
+    #         forward_step_func=forward_step,
+    #         data_iterator=valid_data_iterator,
+    #         model=model,
+    #         iteration=iteration,
+    #         verbose=False,
+    #         timers=timers,
+    #     )
 
-    if neox_args.save and iteration != 0:
-        save_checkpoint(
-            neox_args=neox_args,
-            iteration=iteration,
-            model=model,
-            optimizer=optimizer,
-            lr_scheduler=lr_scheduler,
-        )
+    # if neox_args.save and iteration != 0:
+    #     save_checkpoint(
+    #         neox_args=neox_args,
+    #         iteration=iteration,
+    #         model=model,
+    #         optimizer=optimizer,
+    #         lr_scheduler=lr_scheduler,
+    #     )
 
-    if neox_args.do_test:
-        # Run on test data.
-        prefix = "the end of training for test data"
-        evaluate_and_print_results(
-            neox_args=neox_args,
-            prefix=prefix,
-            forward_step_func=forward_step,
-            data_iterator=test_data_iterator,
-            model=model,
-            iteration=iteration,
-            verbose=True,
-            timers=timers,
-            chart_name="test",
-        )
+    # if neox_args.do_test:
+    #     # Run on test data.
+    #     prefix = "the end of training for test data"
+    #     evaluate_and_print_results(
+    #         neox_args=neox_args,
+    #         prefix=prefix,
+    #         forward_step_func=forward_step,
+    #         data_iterator=test_data_iterator,
+    #         model=model,
+    #         iteration=iteration,
+    #         verbose=True,
+    #         timers=timers,
+    #         chart_name="test",
+    #     )
 
 
 def _get_batch(neox_args, tokenizer, keys, data, datatype):
