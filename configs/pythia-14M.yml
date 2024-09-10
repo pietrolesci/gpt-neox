@@ -46,8 +46,8 @@
   },
 
   # since we have 8 GPUs on this machine and gas is 1 then batch_size==1024
-  "train_micro_batch_size_per_gpu": 128,
-  "gas": 1,
+  "train_micro_batch_size_per_gpu": 128,  # <- change here
+  "gas": 1,                               # <- change here
   "data-impl": "mmap",
   "num_workers": 4,
 
@@ -74,7 +74,7 @@
     "min_loss_scale": 1
   },
 
-  "train-iters": 143000,
+  "train-iters": 143000,  # <- change here
   "lr-decay-iters": 143000,
   "distributed-backend": "nccl",
   "lr-decay-style": "cosine",
@@ -93,6 +93,8 @@
   "test-data-paths": ["/mnt/ssd-2/pile_extra_seeds/pile_20B_tokenizer_text_document"],
 
   "tokenizer-type": "HFTokenizer",
-  "vocab-file": "/mnt/ssd-2/pile/20B_tokenizer.json"
+  "vocab-file": "/mnt/ssd-2/pile/20B_tokenizer.json",
+
+  "seed": 9,  # <- change here
 
 }
